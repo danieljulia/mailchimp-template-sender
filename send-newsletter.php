@@ -30,10 +30,17 @@ if(isset($_GET['title'])){
 }
 
 
+//titol newsletter
+$lang="en";
+if(isset($_GET['lang'])){
+  $lang=$_GET['lang'];
+}
+
+
 
   $options=get_option("pimpampum_newsletter_options");
   if($send=="final"){
-    $list_id=$options['ok_list_id'];
+    $list_id=$options['ok_list_'.$lang.'id'];
   }else{
       $list_id=$options['test_list_id'];
   }
@@ -70,26 +77,30 @@ box-shadow: 0 0 12px rgba(0,0,0,0.3);
 }
 
 input[type="text"] {
-border: 1px solid #666;
-font-size: 15px;
-padding: 6px 10px;
+  border: 1px solid #666;
+  font-size: 15px;
+  padding: 6px 10px;
 }
 
 input[type="button"] {
-font-size: 18px;
-padding: 10px 25px;
-border: none;
-color: #fff;
-font-weight: bold;
-background-color: #000;
-margin: 0 10px;
+  font-size: 18px;
+  padding: 10px 25px;
+  border: none;
+  color: #fff;
+  font-weight: bold;
+  background-color: #000;
+  margin: 0 10px;
 }
 
 input[type="button"]:hover {
-background-color: #a31400;
-cursor: pointer;
+  background-color: #a31400;
+  cursor: pointer;
 }
 
+
+span.info{
+  font-size:0.8rem;
+}
 
 
 
@@ -118,9 +129,15 @@ if($send==""):
 ?>
 
 <div id="newsletter-options" >
-<form id="myform" method="get" action="<?php print get_permalink( 2530 );?>">
+<form id="myform" method="get" action="">
+<span class="info">
+[ Language: <?php print $lang ?> ]
+
+</span>
+
 <?php print __("Title","mt")?>: <input type="text" name="title" size="48" placeholder="Your campaign title" >
 <input type="hidden" id="send" name="send" value="test">
+<input type="hidden" id="lang" name="lang" value="<?php print $lang?>">
 <input type="button" onclick="dosend(false)" value="<?php print __("Send to the TEST list","mt")?>">
 <input type="button" onclick="dosend(true)" value="<?php print __("Send to final list","mt")?>">
 </form>
@@ -162,6 +179,9 @@ if($send!=""){
 
   $content = ob_get_clean();
 
+  //print $content;
+
+  //exit();
 
   //$content= $doc->saveHtml();
 

@@ -10,6 +10,9 @@ License: License: GPLv2
 */
 
 
+require "mailchimp-templates-config.php";
+
+
 add_action( 'admin_init', 'pimpampum_newsletter_options_init' );
 add_action( 'admin_menu', 'pimpampum_newsletter_options_add_page' ); 
 
@@ -27,9 +30,18 @@ add_options_page( "Pimpampum newsletter", "Mailchimp templates setup", "activate
    'edit_theme_options', 'pimpampum_newsletter_options', 'ppp_newsletter_options_do_page' );*/
 } 
 
+add_action( 'init', 'my_add_excerpts_to_pages' );
+
+function my_add_excerpts_to_pages() {
+
+     add_post_type_support( 'page', 'excerpt' );
+
+}
+
+
 function ppp_newsletter_options_do_page() {
 
-  global $options;
+  global $options,$mt_languages;
 
   if ( ! isset( $_REQUEST['settings-updated'] ) ) $_REQUEST['settings-updated'] = false; 
   ?>
@@ -58,9 +70,15 @@ if(!isset($options['api_key'])){
 if(!isset($options['test_list_id'])){
   $options['test_list_id']="";
 }
-if(!isset($options['ok_list_id'])){
-  $options['ok_list_id']="";
+
+foreach($mt_languages as $lang){
+
+  if(!isset($options['ok_list_'.$lang.'_id'])){
+    $options['ok_list_'.$lang.'_id']="";
+  }
+
 }
+
 if(!isset($options['from_email'])){
   $options['from_email']="";
 }
@@ -90,12 +108,21 @@ You need to set the API KEY, and the id for the test list and the final list
 </td>
 </tr> 
 
+<?php
+
+foreach($mt_languages as $lang){
+  ?>
+
 <tr valign="top"><th scope="row">
-<?php print __("Final list Id","mt");?></th></th>
+<?php print __("Final list Id","mt");?> [<?php print $lang?>]</th></th>
 <td>
-<input id="pimpampum_newsletter_options[ok_list_id]" type="text" name="pimpampum_newsletter_options[ok_list_id]" value="<?php esc_attr_e( $options['ok_list_id'] ); ?>" />
+<input id="pimpampum_newsletter_options[ok_list_<?php print $lang?>_id]" type="text" name="pimpampum_newsletter_options[ok_list_<?php print $lang?>_id]" value="<?php esc_attr_e( $options['ok_list_'.$lang.'_id'] ); ?>" />
 </td>
 </tr> 
+
+<?php
+}
+?>
 
 <tr valign="top"><th scope="row">
 <?php print __("From email","mt");?></th></th>
@@ -133,12 +160,16 @@ function my_plugin_menu(){
 }
 
 function my_plugin_options(){
-
+  global $mt_languages;
   ?>
   <div class="wrap">
   <h1>Newsletter mailchimp</h1>
-  <p>Open this link to preview the newsletter and send it</p>
-  <a target="newsletter" href="<?php print bloginfo("wpurl")?>/mailchimp-template"><?php print __("View","mt")?></a>
+  <p>Open the link to preview the newsletter and send it</p>
+  <ul>
+  <?php foreach($mt_languages as $lang): ?>
+  <li><a target="newsletter" href="<?php print bloginfo("wpurl")?>/mailchimp-template?lang=<?php print $lang?>"><?php print __("Preview","mt")?> [<?php print $lang?>]</a></li>
+  <?php endforeach;?>
+  </ul>
   </div>
   <?php
 
